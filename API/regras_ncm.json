@@ -1,0 +1,367 @@
+[
+  {
+    "ncm": "3004.90.99",
+    "descricao": "Medicamentos dosificados ou acondicionados para venda a retalho",
+    "orgaoAnuente": "ANVISA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_REG_ANVISA",
+        "nome": "Registro na ANVISA",
+        "descricao": "Número do registro sanitário aprovado na Anvisa (13 dígitos)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_LOTE",
+        "nome": "Número do Lote",
+        "descricao": "Identificação do lote do fabricante estrangeiro",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_VALIDADE",
+        "nome": "Data de Validade",
+        "descricao": "Data de expiração do medicamento (AAAA-MM-DD)",
+        "tipo": "data"
+      }
+    ]
+  },
+  {
+    "ncm": "9018.90.99",
+    "descricao": "Instrumentos e aparelhos para medicina, cirurgia ou odontologia",
+    "orgaoAnuente": "ANVISA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_REG_ANVISA",
+        "nome": "Registro na ANVISA",
+        "descricao": "Número de cadastro ou registro do equipamento médico na Anvisa",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MODELO",
+        "nome": "Modelo Comercial",
+        "descricao": "Modelo exato do equipamento constante na fatura",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_FABRICANTE",
+        "nome": "Fabricante Estrangeiro",
+        "descricao": "Razão social do fabricante legal",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "3304.99.90",
+    "descricao": "Produtos de beleza, cosméticos e preparações para conservação da pele",
+    "orgaoAnuente": "ANVISA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_NOTIF_ANVISA",
+        "nome": "Processo/Notificação ANVISA",
+        "descricao": "Número do processo de regularização ou notificação na Anvisa",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_LOTE",
+        "nome": "Lote",
+        "descricao": "Lote do fabricante",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_VALIDADE",
+        "nome": "Data de Validade",
+        "descricao": "Validade do cosmético",
+        "tipo": "data"
+      }
+    ]
+  },
+  {
+    "ncm": "0201.20.00",
+    "descricao": "Carnes desossadas de bovino, frescas ou refrigeradas",
+    "orgaoAnuente": "MAPA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_CSI",
+        "nome": "Certificado Sanitário Internacional (CSI)",
+        "descricao": "Número do certificado sanitário oficial emitido pelo país exportador",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_SIF",
+        "nome": "Estabelecimento Produtor / SIF",
+        "descricao": "Número de habilitação do frigorífico produtor no MAPA",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TEMP_TRANSPORTE",
+        "nome": "Temperatura de Transporte",
+        "descricao": "Faixa térmica exigida durante a viagem no contêiner reefer",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "1001.99.00",
+    "descricao": "Trigo e mistura de trigo e centeio (grãos)",
+    "orgaoAnuente": "MAPA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_FITOSSANITARIO",
+        "nome": "Certificado Fitossanitário Internacional",
+        "descricao": "Número do certificado emitido pela autoridade vegetal de origem",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_SAFRA",
+        "nome": "Ano da Safra",
+        "descricao": "Ano da colheita do grão importado",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "2204.21.00",
+    "descricao": "Vinhos de uvas frescas em recipientes de capacidade não superior a 2 litros",
+    "orgaoAnuente": "MAPA",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_CERT_ORIGEM",
+        "nome": "Certificado de Origem e Análise",
+        "descricao": "Certificado de tipicidade e análise enológica exigida pelo MAPA",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TEOR_ALCOOLICO",
+        "nome": "Teor Alcoólico (% vol)",
+        "descricao": "Percentual de álcool por volume",
+        "tipo": "numero"
+      },
+      {
+        "codigo": "ATT_SAFRA",
+        "nome": "Safra do Vinho",
+        "descricao": "Ano da colheita",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "8517.13.00",
+    "descricao": "Smartphones e telefones inteligentes para redes celulares",
+    "orgaoAnuente": "ANATEL",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_HOMOLOGACAO_ANATEL",
+        "nome": "Código de Homologação Anatel",
+        "descricao": "Número do selo de certificação técnica da Anatel",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MARCA",
+        "nome": "Marca",
+        "descricao": "Marca comercial do aparelho",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MODELO",
+        "nome": "Modelo",
+        "descricao": "Código exato do modelo técnico",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "8471.30.12",
+    "descricao": "Computadores portáteis (Notebooks / Laptops) de peso inferior a 3,5 kg",
+    "orgaoAnuente": "INMETRO",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_MARCA",
+        "nome": "Marca",
+        "descricao": "Marca do fabricante",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MODELO",
+        "nome": "Modelo Comercial",
+        "descricao": "Modelo do notebook",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_PART_NUMBER",
+        "nome": "Part Number",
+        "descricao": "Código interno de peça do fabricante",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_CERT_FONTE",
+        "nome": "Certificação Inmetro da Fonte",
+        "descricao": "Portaria Inmetro para o plugue/adaptador de energia AC",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "7318.15.00",
+    "descricao": "Outros parafusos e pinos ou pernos, mesmo com as suas porcas, de ferro fundido, ferro ou aço",
+    "orgaoAnuente": "RECEITA FEDERAL",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_MATERIAL",
+        "nome": "Tipo de Material",
+        "descricao": "Ex: Aço carbono, Aço inox 304, Aço zincado",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MEDIDAS",
+        "nome": "Dimensões Técnicas",
+        "descricao": "Diâmetro x Comprimento da rosca",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "6109.10.00",
+    "descricao": "Camisetas (T-shirts) e camisolas interiores de malha, de algodão",
+    "orgaoAnuente": "INMETRO",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_COMPOSICAO",
+        "nome": "Composição Têxtil Centesimal",
+        "descricao": "Percentual exato de cada fibra (deve somar 100%, ex: 100% Algodão)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TAMANHO",
+        "nome": "Tamanho / Grade",
+        "descricao": "Identificação do tamanho (P, M, G, GG ou numeração)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_CUIDADOS_LAVAGEM",
+        "nome": "Instruções de Conservação",
+        "descricao": "Símbolos ou texto de lavagem conforme Portaria Inmetro 294",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "6203.42.00",
+    "descricao": "Calças, jardineiras, bermudas e shorts, de uso masculino, de algodão (Jeans / Sarja)",
+    "orgaoAnuente": "INMETRO",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_COMPOSICAO",
+        "nome": "Composição Têxtil Centesimal",
+        "descricao": "Percentual exato das fibras (ex: 98% Algodão, 2% Elastano)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TIPO_TECIDO",
+        "nome": "Tipo de Tecido / Armação",
+        "descricao": "Ex: Denim (Jeans), Sarja, Veludo cotelê",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TAMANHO",
+        "nome": "Grade de Numeração",
+        "descricao": "Numeração das peças (ex: 38, 40, 42, 44)",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "6403.99.90",
+    "descricao": "Outros calçados com sola exterior de borracha/plástico e parte superior em couro natural",
+    "orgaoAnuente": "RECEITA FEDERAL",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_MATERIAL_CABEDAL",
+        "nome": "Material do Cabedal (Parte Superior)",
+        "descricao": "Tipo e origem do couro (ex: 100% Couro Bovino Natural)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MATERIAL_SOLA",
+        "nome": "Material da Sola Exterior",
+        "descricao": "Ex: Borracha vulcanizada, Poliuretano (PU), Couro",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_TIPO_CALCADO",
+        "nome": "Classificação do Calçado",
+        "descricao": "Ex: Social masculino, Sapato feminino, Bota cano curto",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_NUMERACAO",
+        "nome": "Grade de Numeração",
+        "descricao": "Padrão brasileiro (ex: 37 a 44)",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "6402.19.00",
+    "descricao": "Outros calçados para esportes (Tênis esportivos) de matéria têxtil e sintética",
+    "orgaoAnuente": "RECEITA FEDERAL",
+    "requerLpco": false,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_MATERIAL_CABEDAL",
+        "nome": "Material do Cabedal",
+        "descricao": "Ex: Tecido Mesh Poliéster com reforço sintético",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MATERIAL_SOLA",
+        "nome": "Material da Sola",
+        "descricao": "Ex: Entressola em EVA com sola de borracha",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_MODELO",
+        "nome": "Modelo Esportivo",
+        "descricao": "Nome comercial do modelo do tênis",
+        "tipo": "texto"
+      }
+    ]
+  },
+  {
+    "ncm": "9503.00.99",
+    "descricao": "Outros brinquedos de plástico, jogos e figuras de ação em miniaturas",
+    "orgaoAnuente": "INMETRO",
+    "requerLpco": true,
+    "atributosObrigatorios": [
+      {
+        "codigo": "ATT_SELO_INMETRO",
+        "nome": "Selo de Segurança do Inmetro",
+        "descricao": "Número do Registro de Objeto obrigatório do Inmetro",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_FAIXA_ETARIA",
+        "nome": "Faixa Etária Recomendada",
+        "descricao": "Indicação etária (ex: Indicado para crianças acima de 3 anos)",
+        "tipo": "texto"
+      },
+      {
+        "codigo": "ATT_OCP",
+        "nome": "Organismo Certificador (OCP)",
+        "descricao": "Nome do órgão certificador acreditado pelo Inmetro",
+        "tipo": "texto"
+      }
+    ]
+  }
+]
+
