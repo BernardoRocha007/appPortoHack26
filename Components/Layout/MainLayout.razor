@@ -1,23 +1,45 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+<div class="flex h-screen w-screen overflow-hidden bg-[#0a1128] font-sans text-slate-100">
+    
+    <!-- 1. SIDEBAR FIXA: !-->
+    <aside class="w-56 bg-[#070d1e] text-slate-200 flex flex-col flex-shrink-0 h-full shadow-2xl z-20 border-r border-[#152244]">
         <NavMenu />
+    </aside>
+
+    <!-- 2. ÁREA PRINCIPAL DA DIREITA -->
+    <div class="flex flex-col flex-1 h-full overflow-hidden">
+        
+        <!-- 2.1 CABEÇALHO FIXO AO TOPO -->
+        <header class="h-16 bg-[#0b1533] border-b border-[#152244] flex items-center justify-between px-6 flex-shrink-0 shadow-sm z-10">
+            <!-- Título / Localização -->
+            <div class="flex items-center space-x-3">
+                Icone aqui
+            </div>
+
+            <!-- Dados do Usuário / Importador -->
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-white">Despachante Aduaneiro</p>
+                    <p class="text-xs text-[#00d2ff]/80">CNPJ: 12.345.678/0001-90</p>
+                </div>
+                <div class="w-9 h-9 rounded-full bg-[#0052cc] text-[#00d2ff] border border-[#00d2ff]/40 flex items-center justify-center font-bold text-sm shadow">
+                    DA
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-8 bg-[#0a1128]">
+            @Body
+        </main>
+        
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+<!-- Mensagem de erro padrão do Blazor -->
+<div id="blazor-error-ui" class="hidden">
+    Ocorreu um erro não tratado.
+    <a href="." class="reload">Recarregar</a>
     <span class="dismiss">🗙</span>
 </div>
