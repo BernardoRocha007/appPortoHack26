@@ -4,11 +4,11 @@ using appPortoHack.API.Services;
 namespace appPortoHack.API.Controllers;
 
 [ApiController]
-[Route("cadatributos/api/ext")]
+[Route("atributos")]
 // O serviço entra direto aqui no cabeçalho da classe!
 public class CadAtributosController(CadAtributosService service) : ControllerBase
 {
-    [HttpGet("ncm/{ncm}/atributos")]
+    [HttpGet("ncm/{ncm}")]
     public IActionResult ObterAtributos(string ncm)
     {
         try

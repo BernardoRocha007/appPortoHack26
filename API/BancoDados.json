@@ -1,0 +1,79 @@
+{
+  "Produtos": [
+    {
+      "Codigo": "MED-001",
+      "Descricao": "Paracetamol 500mg Caixa c/ 20 Comprimidos",
+      "Ncm": "30049099",
+      "CnpjRaiz": "12345678",
+      "PaisOrigem": "Estados Unidos",
+      "Fabricante": "PharmaCorp USA LLC",
+      "Atributos": [
+        { "Codigo": "ATT_001", "Valor": "1023456789" },
+        { "Codigo": "ATT_002", "Valor": "LOTE-2026-X" },
+        { "Codigo": "ATT_003", "Valor": "2028-12-31" }
+      ]
+    },
+    {
+      "Codigo": "TEL-500",
+      "Descricao": "Smartphone Pro Max 5G 256GB Dual SIM",
+      "Ncm": "85171300",
+      "CnpjRaiz": "12345678",
+      "PaisOrigem": "China",
+      "Fabricante": "Shenzhen Tech Global Ltd",
+      "Atributos": [
+        { "Codigo": "ATT_006", "Valor": "04562-23-01234" }
+      ]
+    },
+    {
+      "Codigo": "CRN-100",
+      "Descricao": "Cortes Nobres Bovinos Congelados (Picanha)",
+      "Ncm": "02012000",
+      "CnpjRaiz": "12345678",
+      "PaisOrigem": "Argentina",
+      "Fabricante": "Frigorifico Pampa Sur SA",
+      "Atributos": [
+        { "Codigo": "ATT_004", "Valor": "SIF-ARG-8890" },
+        { "Codigo": "ATT_005", "Valor": "SIF-BR-1234" }
+      ]
+    }
+  ],
+  "Duimps": [
+    {
+      "Numero": "26BR0001892341-0",
+      "CnpjRaiz": "12345678",
+      "DataRegistro": "2026-09-15T14:30:00",
+      "Canal": "RISCO MÍNIMO DE CANAL VERDE POR DADOS TÉCNICOS",
+      "Situacao": "DESEMBARACADA",
+      "Moeda": "USD",
+      "ValorTotalMercadorias": 50000.00,
+      "ValorFrete": 3500.00,
+      "ValorSeguro": 450.00,
+      "RecintoAlfandegado": "BTP - Brasil Terminal Portuário (Santos)",
+      "Itens": [
+        {
+          "NumeroItem": 1,
+          "CodigoProduto": "MED-001",
+          "Quantidade": 10000,
+          "ValorUnitario": 5.00,
+          "NumeroLpco": "LPCO-ANV-2026-00881"
+        }
+      ]
+    }
+  ],
+  "OperadoresEstrangeiros": [
+    {
+      "Codigo": "OP-EUA-001",
+      "Nome": "PharmaCorp USA LLC",
+      "Pais": "Estados Unidos",
+      "Cidade": "New Jersey",
+      "CnpjRaiz": "12345678"
+    },
+    {
+      "Codigo": "OP-CHN-002",
+      "Nome": "Shenzhen Tech Global Ltd",
+      "Pais": "China",
+      "Cidade": "Shenzhen",
+      "CnpjRaiz": "12345678"
+    }
+  ]
+}

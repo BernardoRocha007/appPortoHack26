@@ -8,10 +8,15 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddControllers();
 
-//Services para a API de atributos
+//Services para a API
 builder.Services.AddSingleton<CadAtributosService>(); // Aqui eu to instanciando a classe na memoria, é como se fosse um "new CadAtributosService()" mas o .NET faz isso pra mim, e eu posso usar em qualquer controller que eu quiser, sem precisar instanciar de novo.
+builder.Services.AddSingleton<BancoDadosService>();
+builder.Services.AddSingleton<PlanilhaService>();
+builder.Services.AddSingleton<ProdutoService>();
+builder.Services.AddSingleton<DuimpService>();    
 
 var app = builder.Build();
+app.Services.GetRequiredService<BancoDadosService>(); //força a instanciação do serviço de banco de dados para que ele carregue os dados do arquivo JSON na memória RAM ao iniciar o aplicativo.
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
