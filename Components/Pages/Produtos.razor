@@ -4,7 +4,6 @@
 @using ClosedXML.Excel
 @using UglyToad.PdfPig
 @using appPortoHack26.Data
-@inject AppDbContext DbContext
 
 <PageTitle>InibiComex - Produtos</PageTitle>
 
@@ -193,8 +192,8 @@
 
     private void BuscarProdutos()
     {
-        // leitura do banco de dados
-        ProdutosCadastrados = DbContext.Produtos.ToList();
+        // plugar camada de leitura do banco de dados AQUI!!
+       
     }
 
     private void AbrirModal()
@@ -319,7 +318,7 @@
     private void ExecutarMotorAntiCanalVermelho(PreviaItem item)
     {
         // Validação no banco de dados
-        if (DbContext.Produtos.Any(p => p.Sku == item.Sku))
+        if (ProdutosCadastrados.Any(p => p.Sku == item.Sku))
         {
             item.TipoStatus = "warning";
             item.MensagemStatus = "Já cadastrado. Será ignorado.";
@@ -368,8 +367,9 @@
 
         foreach (var item in itensAprovados)
         {
-            // Adiciona no contexto do Entity Framework
-            DbContext.Produtos.Add(new Produto
+            // Adiciona na memória visual
+            //SUBSTITUIR POR CHAMADA AO BANCO DE DADOS AQUI!!
+            ProdutosCadastrados.Add(new Produto
             {
                 Sku = item.Sku,
                 Descricao = item.Descricao,
@@ -380,8 +380,7 @@
             });
         }
         
-        // salva no banco de dados
-        DbContext.SaveChanges();
+        // salvar no banco de dados!!
         
         // atualiza a tela puxando o banco novamente
         BuscarProdutos(); 
@@ -395,6 +394,16 @@
         "error" => "bg-red-900/50 text-red-400 border border-red-800",
         _ => "bg-gray-700 text-gray-300"
     };
+
+    public class Produto
+    {
+    public string Sku { get; set; } = string.Empty;
+    public string Descricao { get; set; } = string.Empty;
+    public string Ncm { get; set; } = string.Empty;
+    public string Origem { get; set; } = string.Empty;
+    public string Fabricante { get; set; } = string.Empty;
+    public string Atributos { get; set; } = string.Empty;
+    }
 
     public class PreviaItem
     {
