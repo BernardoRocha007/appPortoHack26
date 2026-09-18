@@ -26,7 +26,7 @@ public class ProdutoController(ProdutoService service) : ControllerBase
         }
     }
 
-    [HttpGet("{codigo}")]
+    [HttpGet("codigo/{codigo}")]
     public IActionResult ObterPorCodigo(string codigo, [FromQuery] string cnpjRaiz)
     {
         try

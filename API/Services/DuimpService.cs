@@ -1,45 +1,48 @@
+using Microsoft.EntityFrameworkCore;
+using appPortoHack.API.Data;
 using appPortoHack.API.Models;
 
 namespace appPortoHack.API.Services;
 
-public class DuimpService(BancoDadosService bancoDadosService, CadAtributosService cadAtributosService)
+public class DuimpService(ConexaoDB db, CadAtributosService cadAtributosService)
 {
-    // 1. Obter todas as DUIMPs
     public List<Duimp> ObterTodas(string? cnpjRaiz = null)
     {
         try
         {
-            var duimps = bancoDadosService.ObterDados().Duimps;
-            if (string.IsNullOrWhiteSpace(cnpjRaiz))
-                return duimps;
+            var query = db.Duimps.Include(d => d.Itens).AsNoTracking();
 
-            return duimps.Where(d => d.CnpjRaiz == cnpjRaiz).ToList();
+            if (!string.IsNullOrWhiteSpace(cnpjRaiz))
+                query = query.Where(d => d.CnpjRaiz == cnpjRaiz);
+
+            return query.OrderByDescending(d => d.DataRegistro).ToList();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao obter DUIMPs: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha ao obter DUIMPs: {ex.Message}");
             return new List<Duimp>();
         }
     }
 
-    // 2. Obter DUIMP por número
     public Duimp? ObterPorNumero(string numero)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(numero)) return null;
 
-            return bancoDadosService.ObterDados().Duimps
+            return db.Duimps
+                .Include(d => d.Itens)
+                .AsNoTracking()
                 .FirstOrDefault(d => d.Numero.Equals(numero, StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao buscar DUIMP {numero}: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha ao buscar DUIMP {numero}: {ex.Message}");
             return null;
         }
     }
 
-    // 3. Registrar DUIMP com Simulação de Parametrização
+    // Registrar DUIMP com Simulação de Parametrização
     public (bool Sucesso, Duimp? DuimpRegistrada, List<string> Erros) RegistrarDuimp(Duimp duimp)
     {
         var erros = new List<string>();
@@ -56,14 +59,13 @@ public class DuimpService(BancoDadosService bancoDadosService, CadAtributosServi
                 return (false, null, new List<string> { "O CNPJ raiz do importador é obrigatório." });
             }
 
-            var catalogoProdutos = bancoDadosService.ObterDados().Produtos;
             bool temRiscoCanalVermelho = false;
 
-            // Valida cada item da DUIMP contra o Catálogo de Produtos
+            // Valida cada item da DUIMP contra os produtos cadastrados no bd
             foreach (var item in duimp.Itens)
             {
-                var produtoNoCatalogo = catalogoProdutos.FirstOrDefault(p => 
-                    p.Codigo.Equals(item.CodigoProduto, StringComparison.OrdinalIgnoreCase) && 
+                var produtoNoCatalogo = db.Produtos.FirstOrDefault(p => 
+                    p.Codigo == item.CodigoProduto && 
                     p.CnpjRaiz == duimp.CnpjRaiz);
 
                 if (produtoNoCatalogo == null)
@@ -82,8 +84,8 @@ public class DuimpService(BancoDadosService bancoDadosService, CadAtributosServi
                 }
             }
 
-            // Se tiver erros graves de itens que nem existem no catálogo, impede o registro:
-            if (erros.Count > 0 && !duimp.Itens.Any(i => catalogoProdutos.Any(p => p.Codigo == i.CodigoProduto)))
+            // Se tiver itens que nem existem no catálogo, impede o registro
+            if (erros.Count > 0 && !duimp.Itens.Any(i => db.Produtos.Any(p => p.Codigo == i.CodigoProduto && p.CnpjRaiz == duimp.CnpjRaiz)))
             {
                 return (false, null, erros);
             }
@@ -91,7 +93,7 @@ public class DuimpService(BancoDadosService bancoDadosService, CadAtributosServi
             // Gera o Número Oficial da DUIMP (Ex: 26BR0001234567-0)
             duimp.Numero = $"26BR{Random.Shared.NextInt64(1000000000, 9999999999)}-0";
             duimp.DataRegistro = DateTime.Now;
-            duimp.ValorTotalMercadorias = duimp.Itens.Sum(i => i.ValorTotal);
+            duimp.ValorTotalMercadorias = duimp.Itens.Sum(i => i.Quantidade * i.ValorUnitario);
 
             // Parametrização da Receita Federal
             if (temRiscoCanalVermelho)
@@ -105,16 +107,15 @@ public class DuimpService(BancoDadosService bancoDadosService, CadAtributosServi
                 duimp.Situacao = "DESEMBARACADA";
             }
 
-            // Salva no Banco de Dados!
-            var banco = bancoDadosService.ObterDados();
-            banco.Duimps.Add(duimp);
-            bancoDadosService.Salvar(banco);
+            // Grava no SQL Server!
+            db.Duimps.Add(duimp);
+            db.SaveChanges();
 
             return (true, duimp, erros);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao registrar DUIMP: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha ao registrar DUIMP: {ex.Message}");
             return (false, null, new List<string> { ex.Message });
         }
     }

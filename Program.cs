@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using appPortoHack.Components;
+using appPortoHack.API.Data;
 using appPortoHack.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,21 +10,22 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddControllers();
 
-//Services para a API
-builder.Services.AddSingleton<CadAtributosService>(); // Aqui eu to instanciando a classe na memoria, é como se fosse um "new CadAtributosService()" mas o .NET faz isso pra mim, e eu posso usar em qualquer controller que eu quiser, sem precisar instanciar de novo.
-builder.Services.AddSingleton<BancoDadosService>();
-builder.Services.AddSingleton<PlanilhaService>();
-builder.Services.AddSingleton<ProdutoService>();
-builder.Services.AddSingleton<DuimpService>();    
+// 1. Configuração do Banco de Dados SQL Server via Entity Framework Core
+builder.Services.AddDbContext<ConexaoDB>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 2. Injeção de Dependência dos Serviços
+builder.Services.AddSingleton<CadAtributosService>(); // Regras e Atributos da NCM
+builder.Services.AddScoped<PlanilhaService>();        // Leitor de planilhas CSV / XLSX
+builder.Services.AddScoped<ProdutoService>();         // Catálogo de Produtos integrado ao SQL
+builder.Services.AddScoped<DuimpService>();           // Emissão e consulta de DUIMPs integrado ao SQL
 
 var app = builder.Build();
-app.Services.GetRequiredService<BancoDadosService>(); //força a instanciação do serviço de banco de dados para que ele carregue os dados do arquivo JSON na memória RAM ao iniciar o aplicativo.
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
@@ -30,9 +33,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
-
-app.MapControllers(); // <-- MAPEIA TODOS OS CONTROLLERS AUTOMATICAMENTE!
-
+app.MapControllers(); // Mapeia todos os controllers da API
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

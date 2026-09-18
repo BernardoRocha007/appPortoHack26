@@ -2,6 +2,7 @@ namespace appPortoHack.API.Models;
 
 public class OperadorEstrangeiro
 {
+    public int Id { get; set; }
     public string Codigo { get; set; } = string.Empty;
     public string Nome { get; set; } = string.Empty;
     public string Pais { get; set; } = string.Empty;

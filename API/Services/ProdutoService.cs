@@ -1,30 +1,31 @@
+using Microsoft.EntityFrameworkCore;
+using appPortoHack.API.Data;
 using appPortoHack.API.Models;
 
 namespace appPortoHack.API.Services;
 
-// Recebe tanto o serviço de regras quanto o serviço do Banco!
-public class ProdutoService(CadAtributosService cadAtributosService, BancoDadosService bancoDadosService)
+public class ProdutoService(CadAtributosService cadAtributosService, ConexaoDB db)
 {
-    // 1. Pega os produtos direto do Banco de Dados
+    // 1. Obter todos os produtos do SQL Server
     public List<Produto> ObterTodos(string? cnpjRaiz = null)
     {
         try
         {
-            var produtos = bancoDadosService.ObterDados().Produtos;
+            var query = db.Produtos.Include(p => p.Atributos).AsNoTracking();
 
-            if (string.IsNullOrWhiteSpace(cnpjRaiz))
-                return produtos;
+            if (!string.IsNullOrWhiteSpace(cnpjRaiz))
+                query = query.Where(p => p.CnpjRaiz == cnpjRaiz);
 
-            return produtos.Where(p => p.CnpjRaiz == cnpjRaiz).ToList();
+            return query.ToList();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao obter produtos: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha ao obter produtos: {ex.Message}");
             return new List<Produto>();
         }
     }
 
-    // 2. Busca produto no Banco pelo código e CNPJ
+    // 2. Buscar produto no SQL Server pelo código e CNPJ
     public Produto? ObterPorCodigo(string codigo, string cnpjRaiz)
     {
         try
@@ -32,18 +33,19 @@ public class ProdutoService(CadAtributosService cadAtributosService, BancoDadosS
             if (string.IsNullOrWhiteSpace(codigo) || string.IsNullOrWhiteSpace(cnpjRaiz))
                 return null;
 
-            return bancoDadosService.ObterDados().Produtos.FirstOrDefault(p => 
-                p.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase) && 
-                p.CnpjRaiz == cnpjRaiz);
+            return db.Produtos
+                .Include(p => p.Atributos)
+                .AsNoTracking()
+                .FirstOrDefault(p => p.Codigo == codigo && p.CnpjRaiz == cnpjRaiz);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao buscar produto: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha ao buscar produto: {ex.Message}");
             return null;
         }
     }
 
-    // 3. Validador Anti-Canal Vermelho e Cadastro no Banco
+    // 3. Validador Anti-Canal Vermelho e Cadastro no SQL Server
     public (bool Sucesso, string Mensagem, List<string> Erros) ValidarECadastrar(Produto produto)
     {
         var erros = new List<string>();
@@ -65,7 +67,7 @@ public class ProdutoService(CadAtributosService cadAtributosService, BancoDadosS
             if (erros.Count > 0)
                 return (false, "Campos básicos obrigatórios não preenchidos.", erros);
 
-            // Validação A: Já existe no banco?
+            // Validação A: Já existe no banco SQL Server?
             if (ObterPorCodigo(produto.Codigo, produto.CnpjRaiz) != null)
             {
                 return (false, $"O produto com código '{produto.Codigo}' já está cadastrado no catálogo deste CNPJ.", erros);
@@ -97,17 +99,16 @@ public class ProdutoService(CadAtributosService cadAtributosService, BancoDadosS
                 return (false, "O produto possui pendências técnicas impeditivas para a DUIMP.", erros);
             }
 
-            // SALVA NO BANCO DE DADOS E GRAVA NO DISCO!
-            var banco = bancoDadosService.ObterDados();
-            banco.Produtos.Add(produto);
-            bancoDadosService.Salvar(banco);
+            // GRAVA NO SQL SERVER
+            db.Produtos.Add(produto);
+            db.SaveChanges();
 
-            return (true, "Produto cadastrado com sucesso no Catálogo da DUIMP!", erros);
+            return (true, "Produto cadastrado com sucesso no Catálogo da DUIMP (SQL Server)!", erros);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha ao cadastrar: {ex.Message}");
-            return (false, "Erro interno durante o cadastro.", new List<string> { ex.Message });
+            Console.WriteLine($"[ERRO SQL] Falha ao cadastrar: {ex.Message}");
+            return (false, "Erro interno durante o cadastro no banco de dados.", new List<string> { ex.Message });
         }
     }
 
@@ -144,7 +145,7 @@ public class ProdutoService(CadAtributosService cadAtributosService, BancoDadosS
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERRO] Falha no lote: {ex.Message}");
+            Console.WriteLine($"[ERRO SQL] Falha no lote: {ex.Message}");
             todosErros.Add($"Erro crítico no lote: {ex.Message}");
         }
 

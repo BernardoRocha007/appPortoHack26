@@ -8,9 +8,9 @@ namespace appPortoHack.API.Models
         public string Descricao {get ; set;} = string.Empty;
 
         public string OrgaoAnuente {get ; set;} = string.Empty;
-    public bool RequerLpco { get; set; }
-    public List<AtributoObrigatorio> AtributosObrigatorios { get; set; } = new();
-}
+        public bool RequerLpco { get; set; }
+        public List<AtributoObrigatorio> AtributosObrigatorios { get; set; } = new();
+    }
 // Representa cada campo exigido pelo governo
 public class AtributoObrigatorio
 {
