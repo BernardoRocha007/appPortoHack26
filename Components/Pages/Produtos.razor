@@ -1,3 +1,414 @@
 @page "/Produtos-listar"
+@rendermode InteractiveServer //Interatividade
+@using System.IO
+@using ClosedXML.Excel
+@using UglyToad.PdfPig
+@using appPortoHack26.Data
+@inject AppDbContext DbContext
 
-<h1>Produtos</h1>
+<PageTitle>InibiComex - Produtos</PageTitle>
+
+<div class="w-full bg-[#0b1533] rounded-xl border border-[#1b2d5d] p-8 shadow-lg text-white">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold">Catálogo de Produtos</h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#070e24] p-4 rounded-lg border border-[#1b2d5d] mb-6">
+        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+            <input type="text" @bind="CnpjFiltro" placeholder="Filtrar por CNPJ Raiz..." 
+                   class="bg-[#0b1533] border border-[#1b2d5d] text-white rounded px-4 py-2 focus:outline-none focus:border-blue-500 w-full md:w-64" />
+            
+            <input type="text" @bind="BuscaFiltro" placeholder="Código ou Descrição..." 
+                   class="bg-[#0b1533] border border-[#1b2d5d] text-white rounded px-4 py-2 focus:outline-none focus:border-blue-500 w-full md:w-64" />
+            
+            <button @onclick="BuscarProdutos" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition-colors">
+                Buscar
+            </button>
+        </div>
+
+        <button @onclick="AbrirModal" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded transition-colors whitespace-nowrap">
+            Adicionar via Planilha
+        </button>
+    </div>
+
+    <!-- tabela de cadastros -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-[#1b2d5d] text-gray-300">
+                    <th class="py-3 px-4">Código (SKU)</th>
+                    <th class="py-3 px-4">Descrição</th>
+                    <th class="py-3 px-4">NCM</th>
+                    <th class="py-3 px-4">Origem</th>
+                    <th class="py-3 px-4">Fabricante</th>
+                    <th class="py-3 px-4">Atributos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ProdutosCadastrados.Any())
+                {
+                    @foreach (var prod in ProdutosCadastrados)
+                    {
+                        <tr class="border-b border-[#1b2d5d]/50 hover:bg-[#1b2d5d]/30 transition-colors">
+                            <td class="py-3 px-4">@prod.Sku</td>
+                            <td class="py-3 px-4">@prod.Descricao</td>
+                            <td class="py-3 px-4">@prod.Ncm</td>
+                            <td class="py-3 px-4">@prod.Origem</td>
+                            <td class="py-3 px-4">@prod.Fabricante</td>
+                            <td class="py-3 px-4 text-sm text-gray-400">@prod.Atributos</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="py-6 text-center text-gray-500">Nenhum produto encontrado.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- tela de importação -->
+@if (mostrarModal)
+{
+    <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div class="bg-[#0b1533] border border-[#1b2d5d] rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col text-white">
+            
+            @* <!-- Header --> *@
+            <div class="flex justify-between items-center p-6 border-b border-[#1b2d5d]">
+                <h2 class="text-xl font-bold">Importar Produtos em Lote</h2>
+                <button @onclick="FecharModal" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+           @*  <!-- Body --> *@
+            <div class="p-6 overflow-y-auto">
+                
+                 <!-- Upload Area -->
+                <div class="border-2 border-dashed border-[#1b2d5d] bg-[#070e24] rounded-lg p-8 text-center mb-6">
+                    <p class="mb-2 text-gray-300 font-bold">Importar via Planilha ou Fatura</p>
+                    <p class="mb-4 text-sm text-gray-500">Selecione ou arraste seu arquivo (.csv, .xlsx, .pdf)</p>
+                    <InputFile OnChange="LerArquivo" accept=".csv, .xlsx, .pdf"  
+                           class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer" />
+                </div>
+
+                @if (LendoPlanilha)
+                {
+                    <div class="flex flex-col items-center justify-center py-6 border border-blue-900/50 bg-blue-900/10 rounded-lg">
+                        <svg class="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-blue-400 font-semibold animate-pulse">Executando Motor Anti-Canal Vermelho...</span>
+                        <span class="text-blue-500/70 text-sm mt-1">Validando exigências Siscomex, Anvisa e MAPA</span>
+                    </div>
+                }
+
+               @* <!-- Tabela de Prévia --> *@
+                
+               @if (ItensPrevia.Any() && !LendoPlanilha)
+                {
+                    <div class="border border-[#1b2d5d] rounded-lg overflow-hidden mt-4">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-[#070e24] border-b border-[#1b2d5d]">
+                                <tr>
+                                    <th class="py-2 px-4">Linha/Item</th>
+                                    <th class="py-2 px-4">SKU / Descrição</th>
+                                    <th class="py-2 px-4">NCM</th>
+                                    <th class="py-2 px-4">Análise Anti-Canal Vermelho</th>
+                                    <th class="py-2 px-4 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ItensPrevia)
+                                {
+                                    <tr class="border-b border-[#1b2d5d]/50 hover:bg-[#1b2d5d]/20">
+                                        <td class="py-3 px-4">@item.Linha</td>
+                                        <td class="py-3 px-4">
+                                            <span class="font-mono text-gray-300 block">@item.Sku</span>
+                                        </td>
+                                        <td class="py-3 px-4">@item.Ncm</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 rounded text-xs font-bold @GetBadgeClass(item.TipoStatus)">
+                                                @item.MensagemStatus
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4 text-center">
+                                           @if (item.TipoStatus == "error")
+                                                @if (item.EmEdicao)
+                                                {
+                                                    <div class="flex gap-2 items-center justify-center">
+                                                        <input type="text" @bind="item.AtributosEditados" placeholder="@item.CampoFaltante" class="bg-[#0b1533] border border-amber-500 text-white text-xs px-2 py-1 rounded w-32 focus:outline-none" />
+                                                        <button @onclick="() => SalvarCorrecaoReal(item)" class="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-xs">✔</button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <button @onclick="() => item.EmEdicao = true" class="bg-amber-600/20 hover:bg-amber-600/40 text-amber-500 border border-amber-700/50 px-3 py-1 rounded text-xs transition-colors">
+                                                        Inserir Dado
+                                                    </button>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-gray-500 text-xs">OK</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            @* <!-- Modal Footer --> *@
+            <div class="p-6 border-t border-[#1b2d5d] flex justify-end gap-3 bg-[#070e24] rounded-b-xl">
+                <button @onclick="FecharModal" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                    Cancelar
+                </button>
+                <button @onclick="SalvarCatalogoLote" disabled="@(!ItensPrevia.Any())" class="bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-800 disabled:text-gray-400 text-white font-bold py-2 px-4 rounded transition-colors">
+                    Confirmar e Salvar no Catálogo
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    private bool mostrarModal = false;
+    private bool LendoPlanilha = false;
+    private string CnpjFiltro = "";
+    private string BuscaFiltro = "";
+
+    private List<Produto> ProdutosCadastrados = new();
+    private List<PreviaItem> ItensPrevia = new();
+
+    protected override void OnInitialized()
+    {
+        BuscarProdutos();
+    }
+
+    private void BuscarProdutos()
+    {
+        // leitura do banco de dados
+        ProdutosCadastrados = DbContext.Produtos.ToList();
+    }
+
+    private void AbrirModal()
+    {
+        ItensPrevia.Clear();
+        mostrarModal = true;
+    }
+
+    private void FecharModal() => mostrarModal = false;
+
+    // leitura de arquivos
+    private async Task LerArquivo(InputFileChangeEventArgs e)
+    {
+        LendoPlanilha = true;
+        ItensPrevia.Clear();
+        StateHasChanged(); // loading
+
+        try
+        {
+            var file = e.File;
+            var extensao = Path.GetExtension(file.Name).ToLower();
+            
+            // copia o arquivo para a memória para as bibliotecas conseguirem ler
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(5000000).CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            if (extensao == ".csv")
+            {
+                LerCSV(memoryStream);
+            }
+            else if (extensao == ".xlsx")
+            {
+                LerExcel(memoryStream);
+            }
+            else if (extensao == ".pdf")
+            {
+                LerPDF(memoryStream);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+
+        LendoPlanilha = false;
+    }
+
+    // --- LEITORES ESPECÍFICOS ---
+
+    private void LerCSV(MemoryStream stream)
+    {
+        using var reader = new StreamReader(stream);
+        var content = reader.ReadToEnd();
+        var linhas = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+        int numLinha = 1;
+        foreach (var linha in linhas.Skip(1)) // Skip(1) pula o cabeçalho
+        {
+            var colunas = linha.Split(';');
+            if (colunas.Length >= 5)
+            {
+                ProcessarItemExtraido(numLinha++, colunas[0], colunas[1], colunas[2], colunas[3], colunas[4], colunas.Length > 5 ? colunas[5] : "");
+            }
+        }
+    }
+
+    private void LerExcel(MemoryStream stream)
+    {
+        // usa o ClosedXML para ler XLSX
+        using var workbook = new XLWorkbook(stream);
+        var worksheet = workbook.Worksheet(1); // Pega a primeira aba
+        var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Pula cabeçalho
+
+        int numLinha = 1;
+        foreach (var row in rows)
+        {
+            ProcessarItemExtraido(
+                numLinha++,
+                row.Cell(1).Value.ToString(), // SKU
+                row.Cell(2).Value.ToString(), // Descrição
+                row.Cell(3).Value.ToString(), // NCM
+                row.Cell(4).Value.ToString(), // Origem
+                row.Cell(5).Value.ToString(), // Fabricante
+                row.Cell(6).Value.ToString()  // Atributos
+            );
+        }
+    }
+
+    private void LerPDF(MemoryStream stream)
+    {
+        // Usa PdfPig para extrair texto
+        using var pdf = PdfDocument.Open(stream);
+        var textoCompleto = "";
+        
+        foreach (var page in pdf.GetPages())
+        {
+            textoCompleto += page.Text + " ";
+        }
+
+        // simular que o Regex/IA encontrou os dados na Invoice
+        // Se o texto do PDF contiver a palavra "Invoice", gera a extração
+        if (textoCompleto.Contains("Invoice", StringComparison.OrdinalIgnoreCase) || textoCompleto.Contains("Fatura", StringComparison.OrdinalIgnoreCase))
+        {
+            ProcessarItemExtraido(1, "SKU-PDF-01", "Produto Extraído do PDF", "9018.90.99", "EUA", "TechPDF Corp", "Anvisa: 555");
+            ProcessarItemExtraido(2, "SKU-PDF-02", "Carne Bovina (PDF)", "0201.20.20", "Brasil", "AgroPDF", ""); // Propositalmente sem MAPA para dar erro
+        }
+    }
+
+    // --- MOTOR DE REGRAS E SALVAMENTO ---
+
+    private void ProcessarItemExtraido(int linha, string sku, string desc, string ncm, string origem, string fab, string atributos)
+    {
+        var item = new PreviaItem
+        {
+            Linha = linha, Sku = sku, Descricao = desc, Ncm = ncm, Origem = origem, Fabricante = fab, Atributos = atributos
+        };
+        ExecutarMotorAntiCanalVermelho(item);
+        ItensPrevia.Add(item);
+    }
+
+    private void ExecutarMotorAntiCanalVermelho(PreviaItem item)
+    {
+        // Validação no banco de dados
+        if (DbContext.Produtos.Any(p => p.Sku == item.Sku))
+        {
+            item.TipoStatus = "warning";
+            item.MensagemStatus = "Já cadastrado. Será ignorado.";
+            return;
+        }
+
+        if (item.Ncm.StartsWith("0201")) 
+        {
+            if (string.IsNullOrWhiteSpace(item.Atributos) || !item.Atributos.Contains("MAPA", StringComparison.OrdinalIgnoreCase))
+            {
+                item.TipoStatus = "error";
+                item.MensagemStatus = "Falta registro MAPA";
+                item.CampoFaltante = "Ex: MAPA: 123";
+                return;
+            }
+        }
+
+        if (item.Ncm.StartsWith("9018"))
+        {
+            if (string.IsNullOrWhiteSpace(item.Atributos) || !item.Atributos.Contains("Anvisa", StringComparison.OrdinalIgnoreCase))
+            {
+                item.TipoStatus = "error";
+                item.MensagemStatus = "Falta registro Anvisa";
+                item.CampoFaltante = "Ex: Anvisa: 999";
+                return;
+            }
+        }
+
+        item.TipoStatus = "ok";
+        item.MensagemStatus = "Conforme - Pronto para DUIMP";
+    }
+
+    private void SalvarCorrecaoReal(PreviaItem item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.AtributosEditados))
+        {
+            item.Atributos = string.IsNullOrWhiteSpace(item.Atributos) ? item.AtributosEditados : item.Atributos + ", " + item.AtributosEditados;
+            item.EmEdicao = false;
+            ExecutarMotorAntiCanalVermelho(item);
+        }
+    }
+
+    private void SalvarCatalogoLote()
+    {
+        var itensAprovados = ItensPrevia.Where(i => i.TipoStatus == "ok").ToList();
+
+        foreach (var item in itensAprovados)
+        {
+            // Adiciona no contexto do Entity Framework
+            DbContext.Produtos.Add(new Produto
+            {
+                Sku = item.Sku,
+                Descricao = item.Descricao,
+                Ncm = item.Ncm,
+                Origem = item.Origem,
+                Fabricante = item.Fabricante,
+                Atributos = item.Atributos
+            });
+        }
+        
+        // salva no banco de dados
+        DbContext.SaveChanges();
+        
+        // atualiza a tela puxando o banco novamente
+        BuscarProdutos(); 
+        FecharModal();
+    }
+
+    private string GetBadgeClass(string status) => status switch
+    {
+        "ok" => "bg-emerald-900/50 text-emerald-400 border border-emerald-800",
+        "warning" => "bg-yellow-900/50 text-yellow-400 border border-yellow-800",
+        "error" => "bg-red-900/50 text-red-400 border border-red-800",
+        _ => "bg-gray-700 text-gray-300"
+    };
+
+    public class PreviaItem
+    {
+        public int Linha { get; set; }
+        public string Sku { get; set; } = string.Empty;
+        public string Descricao { get; set; } = string.Empty;
+        public string Ncm { get; set; } = string.Empty;
+        public string Origem { get; set; } = string.Empty;
+        public string Fabricante { get; set; } = string.Empty;
+        public string Atributos { get; set; } = string.Empty;
+        public string TipoStatus { get; set; } = string.Empty;
+        public string MensagemStatus { get; set; } = string.Empty;
+        public string CampoFaltante { get; set; } = string.Empty;
+        public bool EmEdicao { get; set; } = false;
+        public string AtributosEditados { get; set; } = string.Empty;
+    }
+}

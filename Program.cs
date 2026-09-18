@@ -1,5 +1,7 @@
 using appPortoHack.Components;
 using appPortoHack.API.Services;
+using Microsoft.EntityFrameworkCore;
+using appPortoHack26.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,9 @@ builder.Services.AddSingleton<CadAtributosService>(); // Aqui eu to instanciando
 builder.Services.AddSingleton<BancoDadosService>();
 builder.Services.AddSingleton<PlanilhaService>();
 builder.Services.AddSingleton<ProdutoService>();
-builder.Services.AddSingleton<DuimpService>();    
+builder.Services.AddSingleton<DuimpService>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=banco_hackathon.db")); // adicioanando banco
 
 var app = builder.Build();
 app.Services.GetRequiredService<BancoDadosService>(); //força a instanciação do serviço de banco de dados para que ele carregue os dados do arquivo JSON na memória RAM ao iniciar o aplicativo.
